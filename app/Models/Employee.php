@@ -14,7 +14,6 @@ class Employee extends Model
         'EMPLOYMENT_START',
         'ejob_id',
         'department_id',
-        'SALARY',
         'PNUMBER',
         'users_id',
     ];
@@ -38,6 +37,20 @@ public function user()
 public function leaverequest()
 {
     return $this->hasMany(LeaveRequest::class, 'employees_id');
+}
+public function attendance()
+{
+    return $this->hasMany(attendance::class, 'employees_id');
+}
+
+public function employeeBenefits()
+{
+    return $this->hasMany(EmployeeBenefit::class, 'employees_id');
+}
+
+public function evaluation()
+{
+    return $this->hasMany(Evaluation::class, 'employees_id');
 }
 
 

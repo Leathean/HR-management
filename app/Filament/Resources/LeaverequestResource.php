@@ -30,7 +30,8 @@ class LeaverequestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Leave Requests';
-
+        protected static ?int $navigationSort = 2;
+        protected static ?String $navigationGroup = 'Requests';
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -38,14 +39,10 @@ class LeaverequestResource extends Resource
                 ->default(fn () => Filament::auth()->user()?->employee?->id)
                 ->dehydrated(true)
                 ->required(),
-
-
                 DatePicker::make('LEAVEDATE')
                 ->required()
                 ->reactive()
                 ->minDate(Carbon::today()),// Enable live updates
-
-
                 DatePicker::make('RETURNDATE')
                 ->required()
                 ->reactive()

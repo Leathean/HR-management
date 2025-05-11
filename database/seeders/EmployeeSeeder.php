@@ -31,7 +31,6 @@ class EmployeeSeeder extends Seeder
                 'EMPLOYMENT_START' => $faker->date(),
                 'ejob_id' => $faker->randomElement($ejobs), // Random valid ejob_id
                 'department_id' => $faker->randomElement($departments), // Random valid department_id
-                'SALARY' => $faker->optional()->randomFloat(2, 30000, 100000),
                 'PNUMBER' => $faker->optional()->phoneNumber,
                 'users_id' => $user->id, // 1:1 user-to-employee relationship
                 'created_at' => now(),

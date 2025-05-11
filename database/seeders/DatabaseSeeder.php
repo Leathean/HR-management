@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
         $this->call(UsersTableSeeder::class);
         $this->call(DepartmentsTableSeeder::class);
         $this->call(EjobsTableSeeder::class);
-        $this->call(EmployeeSeeder::class); // Only call once
+        $this->call(EmployeeSeeder::class);
+        $this->call(AttendanceSeeder::class);
+         $this->call(BenefitsSeeder::class); // Only call once
     }
 }

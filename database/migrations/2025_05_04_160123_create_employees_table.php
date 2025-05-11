@@ -20,7 +20,6 @@ return new class extends Migration
             $table->date('EMPLOYMENT_START');
             $table->foreignId('ejob_id')->constrained('ejobs')->onDelete('cascade');
             $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
-            $table->decimal('SALARY', 10, 2)->nullable();
             $table->string('PNUMBER')->nullable();
             $table->foreignId('users_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();

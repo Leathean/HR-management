@@ -22,7 +22,7 @@ class ListLeaverequests extends ListRecords
             Actions\Action::make('refresh')
                 ->label('Refresh')
                 ->icon('heroicon-m-arrow-path')
-                ->action(fn () => $this->resetTable()), // 🟢 Refresh table
+                ->action(fn () => $this->resetTable()),
         ];
     }
 
