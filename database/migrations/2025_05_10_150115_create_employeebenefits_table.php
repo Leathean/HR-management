@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('employeebenefits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employees_id')->constrained('employees')->onDelete('cascade');
-            $table->foreignId('benefits_id')->constrained('benefits')->onDelete('cascade');
+            $table->foreignId('benefits_id')->constrained('benefits')->onDelete('cascade')->nullable();
             $table->bigInteger('AMOUNT');
             $table->boolean('STATUS')->default(true);
             $table->timestamps();

@@ -23,7 +23,8 @@ use Illuminate\Validation\ValidationException;
 use Filament\Infolists\Infolist;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
-
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
 class LeaverequestResource extends Resource
 {
     protected static ?string $model = Leaverequest::class;
@@ -174,36 +175,13 @@ class LeaverequestResource extends Resource
                 Tables\Columns\TextColumn::make('RETURNDATE')->date()->sortable()->extraAttributes(['class' => 'text-sm'])->toggleable(),
                 Tables\Columns\TextColumn::make('TOTAL_AMOUNT_LEAVE')->label('Amount of leave')->extraAttributes(['class' => 'text-sm']),
                 Tables\Columns\TextColumn::make('LEAVETYPE'),
-
-
-                SelectColumn::make('LEAVESTATUS')
-                ->label('Leave Status')
-                ->options([
-                    'PENDING' => 'Pending',
-                    'ACCEPTED' => 'Accepted',
-                    'DENY' => 'Denied',
-                ])
-                ->disabled(fn($record) =>
-                    in_array($record->LEAVESTATUS, ['ACCEPTED', 'DENY']) ||
-                    !in_array(Filament::auth()->user()?->ACCESS, ['HR', 'ADMIN'])
-                )
-                ->extraAttributes(['class' => 'text-sm'])
-                ->afterStateUpdated(function ($state, $record) {
-                    if (in_array($state, ['ACCEPTED', 'DENY'])) {
-                        $record->approver_id = Filament::auth()->user()?->employee?->id;
-                        $record->save();
-
-                        Notification::make()
-                            ->title('Leave Status Updated Successfully')
-                            ->success()
-                            ->send();
-                    }
-                }),
+                Tables\Columns\TextColumn::make('LEAVESTATUS'),
 
                 Tables\Columns\TextColumn::make('approver_id')
                 ->label('Reviewed BY')
                 ->getStateUsing(fn($record) => $record->approver ? "{$record->approver->FNAME} {$record->approver->MNAME} {$record->approver->LNAME}" : 'N/A')
                 ->sortable()
+                ->toggleable()
                 ->extraAttributes(['class' => 'text-sm']),
 
                 Tables\Columns\TextColumn::make('created_at')->date()->sortable()->label('DATE CREATED')->extraAttributes(['class' => 'text-sm'])->toggleable(),
@@ -222,6 +200,34 @@ class LeaverequestResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                        // THIS IS ACTION METHOD TO UPDATE THE STATUS OF LEAVE
+                Action::make('updateLeaveStatus')
+                        ->label('Review')
+                        ->icon('heroicon-o-pencil')
+                        ->visible(function ($record) {
+                            $user = Filament::auth()->user();
+                            return $record->LEAVESTATUS === 'PENDING' && in_array($user->ACCESS, ['HR', 'ADMIN']);
+                        })
+                        ->form([
+                            Select::make('LEAVESTATUS')
+                                ->label('Leave Status')
+                                ->options([
+                                    'ACCEPTED' => 'Accepted',
+                                    'DENY' => 'Denied',
+                                ])
+                                ->required(),
+                        ])
+                        ->requiresConfirmation()
+                        ->action(function (array $data, $record) {
+                            $record->LEAVESTATUS = $data['LEAVESTATUS'];
+                            $record->approver_id = Filament::auth()->user()?->employee?->id;
+                            $record->save();
+
+                            Notification::make()
+                                ->title('Leave Status Reviewed Successfully')
+                                ->success()
+                                ->send();
+                        }),
             ])
             ;
     }

@@ -23,4 +23,8 @@ public function benefit()
 {
     return $this->belongsTo(Benefit::class, 'benefits_id');
 }
+    public function salary()
+    {
+        return $this->hasMany(Salary::class, 'employeebenefit_id');  // Corrected the foreign key
+    }
 }
