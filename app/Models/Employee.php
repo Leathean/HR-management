@@ -62,5 +62,13 @@ public function getTotalBenefitsAttribute() // this calculates the total benefit
 {
     return $this->employeebenefit()->where('STATUS', true)->sum('AMOUNT');
 }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class, 'employees_id');
+    }
+
+
+
 }
 

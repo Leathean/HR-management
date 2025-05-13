@@ -95,7 +95,8 @@ class EmployeebenefitResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('AMOUNT')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->money('PHP'),
                 Tables\Columns\IconColumn::make('STATUS')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')

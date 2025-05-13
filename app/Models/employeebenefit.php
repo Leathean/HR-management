@@ -25,6 +25,6 @@ public function benefit()
 }
     public function salary()
     {
-        return $this->hasMany(Salary::class, 'employeebenefit_id');  // Corrected the foreign key
+        return $this->hasMany(Salary::class, 'employeebenefits_id');  // Corrected the foreign key
     }
 }

@@ -23,6 +23,13 @@ class salary extends Model
 
     public function employeeBenefit()
     {
-        return $this->belongsTo(EmployeeBenefit::class, 'employeebenefit_id');
+        return $this->belongsTo(EmployeeBenefit::class, 'employeebenefits_id');
+    }
+
+
+//testing that a employee has a many payroll will change later to 1 payroll per 1 salary per 1 month computation
+    public function payroll()
+    {
+        return $this->hasMany(Payroll::class, 'salaries_id');
     }
 }

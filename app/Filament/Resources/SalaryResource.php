@@ -14,14 +14,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\TextInput;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Button;
 use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\TextInput;
 use App\Actions\ResetStars;
+
 class SalaryResource extends Resource
 {
     protected static ?string $model = Salary::class;
@@ -147,7 +148,7 @@ public static function form(Form $form): Form
             // Net Salary
             Tables\Columns\TextColumn::make('NETSALARY')
                 ->label('Net Salary')
-                ->money('USD')
+                ->money('PHP')
                 ->sortable(),
 
             Tables\Columns\TextColumn::make('created_at')
