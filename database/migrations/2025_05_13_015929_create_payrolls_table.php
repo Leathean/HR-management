@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('salaries_id')->nullable()->constrained('salaries')->onDelete('cascade');
             $table->date('PAYDATE');
             $table->enum('STATUS', ['PENDING', 'PROCESSED'])->default('PENDING');
+            $table->foreignId('approval_id')->constrained('employees')->onDelete('cascade');
+            $table->date('approval_date');
             $table->timestamps();
         });
     }
