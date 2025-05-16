@@ -17,7 +17,9 @@ return new class extends Migration
             $table->date('date')->default(now());
             $table->time('time_in')->now()->nullable();
             $table->time('time_out')->now()->nullable();
-            $table->enum('status', ['on time', 'late', 'absent'])->nullable();
+            $table->enum('time_in_status', ['ON TIME', 'LATE'])->nullable();
+            $table->enum('time_out_status', ['ON TIME', 'EARLY OUT'])->nullable();
+            $table->enum('status_day', ['PRESENT', 'ABSENT'])->nullable()->default('PRESENT');
             $table->timestamps();
         });
     }

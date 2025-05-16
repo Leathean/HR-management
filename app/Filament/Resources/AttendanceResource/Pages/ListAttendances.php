@@ -24,54 +24,61 @@ class ListAttendances extends ListRecords
     {
         return $this->getResource()::getUrl('index');
     }
-    public function getTabs(): array
+
+
+
+   public function getTabs(): array
 {
     $user = Filament::auth()->user();
 
-    // Make sure the user is authenticated
     if (!$user) {
         return [];
     }
 
     $employeeId = $user->employee?->id;
 
-    // Ensure the query is initialized properly
     $baseQuery = Attendance::query()
-        ->when($user && $user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId));
+        ->when($user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId));
 
-    // Count for each status
+
     $allCount = (clone $baseQuery)->count();
-    $onTimeCount = (clone $baseQuery)->where('status', 'on time')->count();
-    $lateCount = (clone $baseQuery)->where('status', 'late')->count();
-    $absentCount = (clone $baseQuery)->where('status', 'absent')->count();
-
-    // Return the tabs with the counts
+    $presentCount = (clone $baseQuery)->where('status_day', 'PRESENT')->count();
+    $absentCount = (clone $baseQuery)->where('status_day', 'ABSENT')->count();
+    $lateCount = (clone $baseQuery)->where('time_in_status', 'LATE')->count();
+    $earlyOutCount = (clone $baseQuery)->where('time_out_status', 'EARLY OUT')->count();
     return [
         Tab::make('All')
-            ->badge($allCount)
+            ->badge((clone $baseQuery)->count())
             ->modifyQueryUsing(fn (Builder $query) =>
-                $query->when($user && $user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
+                $query->when($user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
             ),
 
-        Tab::make('On Time')
-            ->badge($onTimeCount)
+        Tab::make('Present')
+            ->badge((clone $baseQuery)->where('status_day', 'PRESENT')->count())
             ->modifyQueryUsing(fn (Builder $query) =>
-                $query->where('status', 'on time')
-                    ->when($user && $user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
-            ),
-
-        Tab::make('Late')
-            ->badge($lateCount)
-            ->modifyQueryUsing(fn (Builder $query) =>
-                $query->where('status', 'late')
-                    ->when($user && $user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
+                $query->where('status_day', 'PRESENT')
+                    ->when($user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
             ),
 
         Tab::make('Absent')
-            ->badge($absentCount)
+            ->badge((clone $baseQuery)->where('status_day', 'ABSENT')->count())
             ->modifyQueryUsing(fn (Builder $query) =>
-                $query->where('status', 'absent')
-                    ->when($user && $user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
+                $query->where('status_day', 'ABSENT')
+                    ->when($user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
+            ),
+
+        Tab::make('Late')
+            ->badge((clone $baseQuery)->where('time_in_status', 'LATE')->count())
+            ->modifyQueryUsing(fn (Builder $query) =>
+                $query->where('time_in_status', 'LATE')
+                    ->when($user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
+            ),
+
+        Tab::make('Early Out')
+            ->badge((clone $baseQuery)->where('time_out_status', 'EARLY OUT')->count())
+            ->modifyQueryUsing(fn (Builder $query) =>
+                $query->where('time_out_status', 'EARLY OUT')
+                    ->when($user->ACCESS === 'EMPLOYEE', fn ($query) => $query->where('employees_id', $employeeId))
             ),
     ];
 }

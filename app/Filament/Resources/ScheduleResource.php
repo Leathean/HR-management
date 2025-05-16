@@ -62,7 +62,7 @@ class ScheduleResource extends Resource
                 ])
                 ->required(),
 
-            DatePicker::make('DATE')->label('Date')->required(),
+            DatePicker::make('DATE')->label('Date')->required()->default(now()),
         ]);
     }
 
