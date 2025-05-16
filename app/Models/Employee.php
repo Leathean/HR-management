@@ -67,7 +67,10 @@ public function getTotalBenefitsAttribute() // this calculates the total benefit
     {
         return $this->hasMany(Payroll::class, 'employees_id');
     }
-
+public function schedules()
+{
+    return $this->hasMany(Schedule::class, 'employees_id');
+}
 
 
 }
