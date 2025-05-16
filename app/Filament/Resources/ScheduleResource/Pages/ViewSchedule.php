@@ -10,10 +10,21 @@ class ViewSchedule extends ViewRecord
 {
     protected static string $resource = ScheduleResource::class;
 
-    protected function getHeaderActions(): array
+ protected function getHeaderActions(): array
     {
         return [
             Actions\EditAction::make(),
+            Actions\Action::make('exit')
+            ->label('Exit')
+            ->url($this->getRedirectUrl())
+            ->color('danger'),
+
+
         ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

@@ -45,15 +45,19 @@ class AttendanceResource extends Resource
 
     return $table
         ->columns([
-            TextColumn::make('employees_id')
-                ->label('Employee')
-                ->formatStateUsing(fn ($state, $record) =>
-                    $record->employee?->FNAME . ' ' .
-                    $record->employee?->MNAME . ' ' .
-                    $record->employee?->LNAME
-                )
-                ->sortable()
-                ->searchable(),
+                TextColumn::make('employee_full_name')
+                    ->label('Employee Name')
+                    ->getStateUsing(fn($record) => $record->employee
+                        ? "{$record->employee->FNAME} {$record->employee->MNAME} {$record->employee->LNAME}"
+                        : 'N/A')
+                    ->sortable()
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('employee', function ($q) use ($search) {
+                            $q->where('FNAME', 'like', "%{$search}%")
+                            ->orWhere('MNAME', 'like', "%{$search}%")
+                            ->orWhere('LNAME', 'like', "%{$search}%");
+                        });
+                    }),
             TextColumn::make('date')->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('d-M-Y')),
             TextColumn::make('time_in'),
             TextColumn::make('time_out'),
