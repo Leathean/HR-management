@@ -127,7 +127,7 @@
     <header>
         <a href="{{ route('home') }}" class="site-name">HRMs</a>
         <nav>
-            <a href="/about-us">About Us</a>
+            {{-- <a href="/about-us">About Us</a> --}}
             <a href="/admin/login">Login</a>
         </nav>
     </header>
@@ -140,7 +140,6 @@
                 <div class="job-title">{{ $job->ejob->EJOB_NAME ?? 'Untitled Job' }}</div>
                 <div class="job-detail"><strong>Department:</strong> {{ $job->department->DP_NAME ?? 'N/A' }}</div>
                 <div class="job-detail"><strong>Posted:</strong> {{ $job->POSTED_DATE->format('F j, Y') }}</div>
-                <div class="job-detail"><strong>Qualification:</strong> {{ $job->QUALIFICATION }}</div>
                 <a class="apply-link" href="{{ route('apply.show', $job->id) }}">Apply Now</a>
             </div>
         @endforeach

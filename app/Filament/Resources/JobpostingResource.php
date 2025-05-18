@@ -45,8 +45,11 @@ class JobpostingResource extends Resource
 
                 Textarea::make('QUALIFICATION')
                     ->label('Qualification')
+                    ->autosize() // makes it flexible height based on content
+                    ->rows(10)     // sets default height
                     ->required()
-                    ->columnSpanFull(), // Optional: makes it span full width
+                    ->columnSpanFull(),
+
 
             ]),
         ]);

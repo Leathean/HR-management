@@ -29,12 +29,17 @@
             font-weight: bold;
         }
 
-        input[type="text"] {
+        input[type="text"], textarea {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
             border-radius: 6px;
             border: 1px solid #ccc;
+        }
+
+        textarea {
+            resize: vertical;
+            font-family: Arial, sans-serif;
         }
 
         button {
@@ -69,7 +74,9 @@
         <h1>Apply for: {{ $jobPosting->ejob->EJOB_NAME ?? 'Job' }}</h1>
 
         <p><strong>Department:</strong> {{ $jobPosting->department->DP_NAME ?? 'N/A' }}</p>
-        <p><strong>Qualification:</strong> {{ $jobPosting->QUALIFICATION }}</p>
+
+        <label for="QUALIFICATION">Qualification:</label>
+        <textarea id="QUALIFICATION" readonly rows="4">{{ $jobPosting->QUALIFICATION }}</textarea>
 
         @if(session('success'))
             <p class="success">{{ session('success') }}</p>
