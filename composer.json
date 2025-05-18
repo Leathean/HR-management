@@ -11,7 +11,8 @@
         "guava/filament-icon-select-column": "^1.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "mokhosh/filament-rating": "^1.4"
+        "mokhosh/filament-rating": "^1.4",
+        "saade/filament-fullcalendar": "^3.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

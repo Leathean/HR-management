@@ -20,7 +20,6 @@ class EjobResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?int $navigationSort = 3;
     protected static ?String $navigationGroup = 'Job';
-    protected static ?string $modelLabel = 'Evaluation Form';
     protected static ?string $navigationLabel = 'Job Descriptions';
 
     public static function form(Form $form): Form
