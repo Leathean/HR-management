@@ -30,7 +30,7 @@ class LeaverequestResource extends Resource
 {
     protected static ?string $model = Leaverequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
     protected static ?string $navigationLabel = 'Leave Requests';
         protected static ?int $navigationSort = 2;
         protected static ?String $navigationGroup = 'Requests';

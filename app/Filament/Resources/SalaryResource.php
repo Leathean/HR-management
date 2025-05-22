@@ -27,7 +27,7 @@ class SalaryResource extends Resource
 {
     protected static ?string $model = Salary::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-credit-card';
         protected static ?int $navigationSort = 3;
         protected static ?String $navigationGroup = 'Finances';
         protected static ?string $modelLabel = 'Employee Salaries';

@@ -25,7 +25,7 @@ class EmployeebenefitResource extends Resource
 {
     protected static ?string $model = Employeebenefit::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-plus-circle';
         protected static ?int $navigationSort = 3;
         protected static ?String $navigationGroup = 'Finances';
         protected static ?string $modelLabel = 'Employee Benefits';

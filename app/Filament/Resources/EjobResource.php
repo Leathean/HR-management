@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class EjobResource extends Resource
 {
     protected static ?string $model = Ejob::class;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
     protected static ?int $navigationSort = 3;
     protected static ?String $navigationGroup = 'Job';
     protected static ?string $navigationLabel = 'Job Descriptions';

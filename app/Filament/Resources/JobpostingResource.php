@@ -20,7 +20,7 @@ class JobpostingResource extends Resource
 {
     protected static ?string $model = Jobposting::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?int $navigationSort = 3;
     protected static ?String $navigationGroup = 'Job';
     protected static ?string $navigationLabel = 'Job Posting';

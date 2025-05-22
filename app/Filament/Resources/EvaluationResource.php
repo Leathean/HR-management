@@ -26,7 +26,7 @@ class EvaluationResource extends Resource
 {
     protected static ?string $model = Evaluation::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
         protected static ?int $navigationSort = 3;
         protected static ?String $navigationGroup = 'Evaluations';
         protected static ?string $modelLabel = 'Evaluation Form';
@@ -52,7 +52,7 @@ class EvaluationResource extends Resource
                                 Tabs\Tab::make('Rating Questions')
                                     ->schema(
                                         $questions->map(fn($question) => RATING::make("RATINGS.{$question->id}")
-                                            ->label($question->question)
+                                            ->label($question->QUESTION)
                                             ->required()
                                             ->hint($question->hint ?? null)
                                             ->extraAttributes(['class' => 'mb-4'])

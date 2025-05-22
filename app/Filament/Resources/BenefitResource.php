@@ -17,7 +17,7 @@ class BenefitResource extends Resource
 {
     protected static ?string $model = Benefit::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-gift';
         protected static ?int $navigationSort = 3;
         protected static ?String $navigationGroup = 'Finances';
     public static function form(Form $form): Form
