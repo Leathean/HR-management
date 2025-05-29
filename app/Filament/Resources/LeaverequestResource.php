@@ -18,9 +18,10 @@ use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Infolists;
 use Illuminate\Validation\ValidationException;
-use Filament\Infolists\Infolist;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Filament\Tables\Actions\Action;
@@ -109,6 +110,19 @@ class LeaverequestResource extends Resource
                             : 'N/A'),
                     TextEntry::make('employees_id')
                         ->label('Employee ID'),
+
+                    TextEntry::make('employee.ejob.EJOB_NAME')
+                        ->label('Job')
+                        ->formatStateUsing(fn ($state, $record) => $record->employee
+                            ? "{$record->employee->ejob->EJOB_NAME} - {$record->employee->ejob->EJOB_DESCRIPTION}"
+                            : 'N/A'),
+                    TextEntry::make('employee.department')
+                        ->label('Department')
+                        ->formatStateUsing(fn ($state, $record) => $record->employee
+                            ? "{$record->employee->department->DP_NAME} - {$record->employee->department->DP_DESCRIPTION}"
+                            : 'N/A'),
+                    TextEntry::make('employee.PNUMBER')
+                        ->label('Phone Number'),
                 ])
                 ->collapsible()
                 ->persistCollapsed(),
@@ -134,14 +148,17 @@ class LeaverequestResource extends Resource
                 ->collapsible()
                 ->persistCollapsed(),
 
-            Section::make('Reviewer Details') // Custom title
-                ->description('Information about the reviewer of the leave request.')
+            Section::make('Review Details') // Custom title
+                ->description('Information about the review of the leave request.')
                 ->schema([
                     TextEntry::make('approver.FNAME')
                         ->label('Reviewer name')
                         ->formatStateUsing(fn($record) => $record->approver
                             ? "{$record->approver->FNAME} {$record->approver->MNAME} {$record->approver->LNAME}"
                             : 'N/A'),
+                    TextEntry::make('APPROVEDATE')
+                        ->label('Date Reviewed')
+                        ->date(),
                 ])
                 ->collapsible()
                 ->persistCollapsed(),
@@ -153,7 +170,7 @@ class LeaverequestResource extends Resource
                         ->label('Date Created')
                         ->date(),
                     TextEntry::make('updated_at')
-                        ->label('Date Reviewed')
+                        ->label('Date Updated')
                         ->date(),
                 ])
                 ->collapsible()
@@ -177,7 +194,7 @@ class LeaverequestResource extends Resource
                 Tables\Columns\TextColumn::make('TOTAL_AMOUNT_LEAVE')->label('Amount of leave')->extraAttributes(['class' => 'text-sm']),
                 Tables\Columns\TextColumn::make('LEAVETYPE'),
                 Tables\Columns\TextColumn::make('LEAVESTATUS'),
-
+                Tables\Columns\TextColumn::make('APPROVEDATE')->date()->sortable()->extraAttributes(['class' => 'text-sm'])->toggleable(),
                 Tables\Columns\TextColumn::make('approver_id')
                 ->label('Reviewed BY')
                 ->getStateUsing(fn($record) => $record->approver ? "{$record->approver->FNAME} {$record->approver->MNAME} {$record->approver->LNAME}" : 'N/A')
@@ -186,7 +203,7 @@ class LeaverequestResource extends Resource
                 ->extraAttributes(['class' => 'text-sm']),
 
                 Tables\Columns\TextColumn::make('created_at')->date()->sortable()->label('DATE CREATED')->extraAttributes(['class' => 'text-sm'])->toggleable(),
-                Tables\Columns\TextColumn::make('updated_at')->date()->sortable()->label('DATE REVIEWED')->extraAttributes(['class' => 'text-sm'])->toggleable(),
+                Tables\Columns\TextColumn::make('updated_at')->date()->sortable()->label('DATE UPDATED')->extraAttributes(['class' => 'text-sm'])->toggleable(),
             ])
             ->filters([
                 // Only show this filter if user is HR or ADMIN
@@ -222,6 +239,7 @@ class LeaverequestResource extends Resource
                         ->action(function (array $data, $record) {
                             $record->LEAVESTATUS = $data['LEAVESTATUS'];
                             $record->approver_id = Filament::auth()->user()?->employee?->id;
+                            $record->APPROVEDATE = date(now());
                             $record->save();
 
                             Notification::make()
