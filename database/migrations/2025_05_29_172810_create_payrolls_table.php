@@ -16,9 +16,12 @@ return new class extends Migration
             $table->foreignId('employees_id')->constrained('employees')->onDelete('cascade');
             $table->foreignId('salaries_id')->nullable()->constrained('salaries')->onDelete('cascade');
             $table->date('PAYDATE');
-            $table->enum('STATUS', ['PENDING', 'PROCESSED'])->default('PENDING');
-            $table->foreignId('approval_id')->nullable()->constrained('employees')->onDelete('cascade');
+            $table->enum('STATUS', ['PENDING', 'PROCESSED', 'DENIED'])->default('PENDING');
+            $table->foreignId('approval_id')->nullable()->constrained('employees')->onDelete('cascade'); // approver mostly the payroll manager
             $table->date('approval_date')->nullable();
+            $table->decimal('gross_pay', 10, 2)->nullable();         // salary + benefits
+            $table->decimal('total_deductions', 10, 2)->nullable();  // deductions
+            $table->decimal('net_pay', 10, 2)->nullable();           // gross - deductions
             $table->timestamps();
         });
     }

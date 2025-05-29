@@ -32,7 +32,7 @@ class AttendanceResource extends Resource
 
             Forms\Components\DatePicker::make('date')
                 ->default(now())
-                ->disabled(),
+
         ]);
     }
 

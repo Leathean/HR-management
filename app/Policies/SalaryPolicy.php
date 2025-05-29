@@ -2,13 +2,12 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Salary;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
 class SalaryPolicy
 {
-    /**
-     * Create a new policy instance.
-     */
     public function viewAny(User $user): bool
     {
         // Ensure the user has access as either HR or Admin

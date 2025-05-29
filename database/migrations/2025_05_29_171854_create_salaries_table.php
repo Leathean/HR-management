@@ -15,11 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employees_id')->constrained('employees')->onDelete('cascade');
             $table->decimal('BASICSALARY', 10, 2)->default(0);
-           $table->foreignId('employeebenefit_id')->nullable()->constrained('employeebenefits')->onDelete('cascade');
-            $table->decimal('NETSALARY', 10, 2)->default(0);
+            $table->enum('SALARY_TYPE', ['MONTHLY', 'DAILY', 'BIWEEKLY'])->default('MONTHLY');
+            $table->boolean('STATUS')->default(true);
             $table->timestamps();
         });
-
     }
 
     /**

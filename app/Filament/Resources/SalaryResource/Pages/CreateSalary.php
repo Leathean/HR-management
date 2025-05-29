@@ -10,11 +10,8 @@ class CreateSalary extends CreateRecord
 {
     protected static string $resource = SalaryResource::class;
 
-
         protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }
-
-
 }

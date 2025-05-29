@@ -10,7 +10,7 @@ class ViewSalary extends ViewRecord
 {
     protected static string $resource = SalaryResource::class;
 
- protected function getHeaderActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             Actions\EditAction::make(),
@@ -18,13 +18,8 @@ class ViewSalary extends ViewRecord
             ->label('Exit')
             ->url($this->getRedirectUrl())
             ->color('danger'),
-
-
         ];
     }
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
-    }
+
 }

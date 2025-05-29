@@ -1,34 +1,30 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class salary extends Model
+class Salary extends Model
 {
-    protected $table = 'salaries';
+    use HasFactory;
 
-        protected $fillable = [
+    protected $fillable = [
         'employees_id',
         'BASICSALARY',
-        'employeebenefit_id',
-        'NETSALARY',
+        'SALARY_TYPE',
+        'STATUS',
     ];
 
+    protected $casts = [
+        'STATUS' => 'boolean',
+    ];
 
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'employees_id');
     }
 
-    public function employeeBenefit()
-    {
-        return $this->belongsTo(EmployeeBenefit::class, 'employeebenefits_id');
-    }
-
-
-//testing that a employee has a many payroll will change later to 1 payroll per 1 salary per 1 month computation
-    public function payroll()
+    public function payrolls()
     {
         return $this->hasMany(Payroll::class, 'salaries_id');
     }
