@@ -24,7 +24,7 @@ class CreateSalary extends CreateRecord
             $salary = Salary::create([
                 'employees_id' => $employeeId,
                 'BASICSALARY' => $data['BASICSALARY'],
-                'SALARY_TYPE' => $data['SALARY_TYPE'],
+                'PERDAYRATE' => $data['PERDAYRATE'],
                 'STATUS' => $data['STATUS'] ?? true,
             ]);
 

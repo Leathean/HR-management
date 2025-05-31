@@ -20,6 +20,7 @@ use App\Filament\Resources\SalaryResource\Pages\EditSalary;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Section;
 use Filament\Infolists\Infolist;
+use Carbon\Carbon;
 use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 
@@ -59,18 +60,33 @@ class SalaryResource extends Resource
             Section::make('Salary Details')
                 ->schema([
                     TextInput::make('BASICSALARY')
-                        ->label('Basic Salary')
-                        ->numeric()
-                        ->required(),
+                                ->label('Basic Salary')
+                                ->numeric()
+                                ->required()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    $daysInMonth = Carbon::now()->daysInMonth;
+                                    if ($daysInMonth > 0) {
+                                        $perDayRate = $state / $daysInMonth;
+                                        $set('PERDAYRATE', round($perDayRate, 2));
+                                    }
+                                }),
 
-                    Select::make('SALARY_TYPE')
-                    ->label('Salary Type')
-                        ->options([
-                            'MONTHLY' => 'Monthly',
-                            'DAILY' => 'Daily',
-                            'BIWEEKLY' => 'Bi-weekly',
-                        ])
-                        ->required(),
+                            TextInput::make('PERDAYRATE')
+                                ->label('Per Day Rate')
+                                ->numeric()
+                                ->disabled()              // Make it read-only
+                                ->dehydrated(true)       // Prevent saving unless needed
+                                ->required()
+                                ->afterStateHydrated(function ($state, callable $set, $get) {
+                                    $basicSalary = $get('BASICSALARY');
+                                    $daysInMonth = Carbon::now()->daysInMonth;
+                                    if ($basicSalary && $daysInMonth > 0) {
+                                        $set('PERDAYRATE', round($basicSalary / $daysInMonth, 2));
+                                    }
+                                                }),
+
+
                 ])
                 ->collapsible(),
 
@@ -83,7 +99,8 @@ class SalaryResource extends Resource
         ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Infolist $infolist): Infolist // for view so it shows all related information for the employee
+
     {
         return $infolist
             ->schema([
@@ -121,8 +138,10 @@ class SalaryResource extends Resource
                             ->label('Basic Salary')
                             ->formatStateUsing(fn ($state) => number_format($state, 2)),
 
-                        TextEntry::make('SALARY_TYPE')
-                            ->label('Salary Type'),
+                        TextEntry::make('PERDAYRATE')
+                            ->label('Rate per Day')
+                            ->formatStateUsing(fn ($state) => number_format($state, 2)),
+
 
                         TextEntry::make('STATUS')
                             ->label('Status')
@@ -163,14 +182,14 @@ class SalaryResource extends Resource
                             ->orWhere('LNAME', 'like', "%{$search}%");
                     });
                 }),
-            Tables\Columns\TextColumn::make('BASICSALARY')->money('php'),
-            Tables\Columns\TextColumn::make('SALARY_TYPE'),
-            Tables\Columns\IconColumn::make('STATUS')->boolean(),
+            Tables\Columns\TextColumn::make('BASICSALARY')->money('php')->label('Basic salary'),
+            Tables\Columns\TextColumn::make('PERDAYRATE')->label(' Per day rate'),
+            Tables\Columns\IconColumn::make('STATUS')->boolean()->label('Salary Status'),
         ])
         ->actions([
             Tables\Actions\ViewAction::make(),
             Tables\Actions\EditAction::make(),
-            Tables\Actions\Action::make('Enable Salary')
+            Tables\Actions\Action::make('Enable Salary') // changes salary to enable when press isntead of going to edit
                 ->label('Enable Salary')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
@@ -178,7 +197,7 @@ class SalaryResource extends Resource
                 ->action(fn ($record) => $record->update(['STATUS' => true]))
                 ->visible(fn ($record) => !$record->STATUS),
 
-            Tables\Actions\Action::make('Disable Salary')
+            Tables\Actions\Action::make('Disable Salary') // disabled salary to enable when press isntead of going to edit
                 ->label('Disable Salary')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')

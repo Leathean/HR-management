@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('approver_id')->nullable()->constrained('employees')->onDelete('cascade');
             $table->date('APPROVEDATE')->nullable();
             $table->enum('LEAVESTATUS', ['PENDING', 'ACCEPTED', 'DENY'])->default('PENDING');
-            $table->enum('LEAVETYPE', ['NONE', 'SICK LEAVE', 'PATERNITY'])->default('NONE');
+            $table->enum('LEAVETYPE', ['NONE', 'SICK LEAVE', 'PATERNITY', 'LEAVEPAY'])->default('NONE');
             $table->timestamps();
         });
     }

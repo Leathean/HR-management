@@ -6,6 +6,7 @@ use App\Filament\Resources\LeaverequestResource\Pages;
 use App\Models\Leaverequest;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Tables\Filters\Filter;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Actions;
@@ -80,6 +81,8 @@ class LeaverequestResource extends Resource
                     'NONE' => 'NONE',
                     'SICK LEAVE' => 'SICK LEAVE',
                     'PATERNITY' => 'PATERNITY',
+                    'LEAVEPAY' => 'LEAVEPAY',
+
                 ])
                 ->required(),
             Forms\Components\TextInput::make('LEAVESTATUS')
@@ -206,11 +209,47 @@ class LeaverequestResource extends Resource
                 Tables\Columns\TextColumn::make('updated_at')->date()->sortable()->label('DATE UPDATED')->extraAttributes(['class' => 'text-sm'])->toggleable(),
             ])
             ->filters([
-                // Only show this filter if user is HR or ADMIN
-                ...(($user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN') ? [
-                    Tables\Filters\Filter::make('My Requests')
-                        ->query(fn (Builder $query) => $query->where('employees_id', $user->employee?->id)),
-                ] : []),
+    ...(($user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN') ? [
+        Filter::make('My Requests')
+            ->query(fn (Builder $query) => $query->where('employees_id', $user->employee?->id)),
+    ] : []),
+
+    // Leave Type Filters
+    ...(($user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN') ? [
+        // HR/Admin see all leave types (no employee restriction)
+        Filter::make('NONE')
+            ->query(fn (Builder $query) => $query->where('LEAVETYPE', 'NONE')),
+
+        Filter::make('SICK LEAVE')
+            ->query(fn (Builder $query) => $query->where('LEAVETYPE', 'SICK LEAVE')),
+
+        Filter::make('PATERNITY')
+            ->query(fn (Builder $query) => $query->where('LEAVETYPE', 'PATERNITY')),
+
+        Filter::make('LEAVEPAY')
+            ->query(fn (Builder $query) => $query->where('LEAVETYPE', 'LEAVEPAY')),
+    ] : [
+        // Regular users: same filters, but scoped to their own requests
+        Filter::make('NONE')
+            ->query(fn (Builder $query) => $query
+                ->where('employees_id', $user->employee?->id)
+                ->where('LEAVETYPE', 'NONE')),
+
+        Filter::make('SICK LEAVE')
+            ->query(fn (Builder $query) => $query
+                ->where('employees_id', $user->employee?->id)
+                ->where('LEAVETYPE', 'SICK LEAVE')),
+
+        Filter::make('PATERNITY')
+            ->query(fn (Builder $query) => $query
+                ->where('employees_id', $user->employee?->id)
+                ->where('LEAVETYPE', 'PATERNITY')),
+
+        Filter::make('LEAVEPAY')
+            ->query(fn (Builder $query) => $query
+                ->where('employees_id', $user->employee?->id)
+                ->where('LEAVETYPE', 'LEAVEPAY')),
+    ]),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

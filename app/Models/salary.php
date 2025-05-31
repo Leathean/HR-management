@@ -11,7 +11,7 @@ class Salary extends Model
     protected $fillable = [
         'employees_id',
         'BASICSALARY',
-        'SALARY_TYPE',
+        'PERDAYRATE',
         'STATUS',
     ];
 

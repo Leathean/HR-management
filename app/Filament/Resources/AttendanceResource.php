@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AttendanceResource\Pages;
 use App\Models\Attendance;
 use Filament\Forms;
+use Carbon\Carbon;
+
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -32,6 +34,8 @@ class AttendanceResource extends Resource
 
             Forms\Components\DatePicker::make('date')
                 ->default(now())
+                ->readOnly()
+
 
         ]);
     }
@@ -99,11 +103,18 @@ class AttendanceResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('Time In')
                     ->action(fn ($record) => $record->update(['time_in' => now()->format('H:i:s')]))
-                    ->hidden(fn ($record) => filled($record->time_in)),
+                    ->hidden(fn ($record) =>
+                        filled($record->time_in) ||
+                        Carbon::parse($record->date)->isBefore(Carbon::today()) // hide if date is in the past
+                    ),
 
                 Tables\Actions\Action::make('Time Out')
                     ->action(fn ($record) => $record->update(['time_out' => now()->format('H:i:s')]))
-                    ->hidden(fn ($record) => empty($record->time_in) || filled($record->time_out)),
+                    ->hidden(fn ($record) =>
+                        empty($record->time_in) ||
+                        filled($record->time_out) ||
+                        Carbon::parse($record->date)->isBefore(Carbon::today()) // hide if date is in the past
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

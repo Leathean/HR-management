@@ -79,6 +79,14 @@ class Employee extends Model
     {
         return $this->employeebenefit()->where('STATUS', true)->sum('AMOUNT');
     }
+
+    public function benefits()
+    {
+        return $this->belongsToMany(Benefit::class, 'employeebenefits', 'employees_id', 'benefits_id')
+                    ->withPivot('AMOUNT', 'STATUS')
+                    ->withTimestamps();
+    }
+
 }
 
 

@@ -12,9 +12,9 @@ class Department extends Model
     ];
 
     protected $table = 'departments';
-    public function employee()
+public function employee()
 {
-    return $this->hasMany(Employee::class);
+    return $this->hasMany(Employee::class, 'department_id');
 }
 public function jobPostings()
 {
