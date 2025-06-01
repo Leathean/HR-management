@@ -14,19 +14,24 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TimeColumn;
+use Filament\Facades\Filament;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Columns\DateColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\DatePicker;
+use Carbon\Carbon; // Don't forget to import Carbon
+
 class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-date-range';
-        protected static ?int $navigationSort = 3;
-        protected static ?String $navigationGroup = 'Records';
-        protected static ?string $modelLabel = 'Employee Schedules';
+    protected static ?int $navigationSort = 3;
+    protected static ?String $navigationGroup = 'Records';
+    protected static ?string $modelLabel = 'Employee Schedules';
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -43,24 +48,25 @@ class ScheduleResource extends Resource
                 ->label('Schedule Name')
                 ->required(),
 
-                TimePicker::make('STARTTIME')
-                    ->label('Start Time')
-                    ->seconds(false) // optional, false by default
-                    ->format('H:i')
-                    ->required(),
+            TimePicker::make('STARTTIME')
+                ->label('Start Time')
+                ->seconds(false) // optional, false by default
+                ->format('H:i')
+                ->required(),
 
-                TimePicker::make('ENDTIME')
-                    ->label('End Time')
-                    ->seconds(false)
-                    ->format('H:i')
-                    ->required(),
-
+            TimePicker::make('ENDTIME')
+                ->label('End Time')
+                ->seconds(false)
+                ->format('H:i')
+                ->required(),
 
             Select::make('SCHEDULE_TYPE')
                 ->label('Schedule Type')
                 ->options([
                     'WORKDAY' => 'Workday',
                     'ONLEAVE' => 'On Leave',
+                    'RESTDAY' => 'On Rest Day',
+                    'LEAVEPAY' => 'On Leave with Pay',
                 ])
                 ->required(),
 
@@ -68,9 +74,9 @@ class ScheduleResource extends Resource
         ]);
     }
 
-
     public static function table(Table $table): Table
     {
+        $user = Filament::auth()->user();
         return $table
             ->columns([
                 TextColumn::make('employee_full_name')
@@ -82,8 +88,8 @@ class ScheduleResource extends Resource
                     ->searchable(query: function (Builder $query, string $search) {
                         $query->whereHas('employee', function ($q) use ($search) {
                             $q->where('FNAME', 'like', "%{$search}%")
-                            ->orWhere('MNAME', 'like', "%{$search}%")
-                            ->orWhere('LNAME', 'like', "%{$search}%");
+                                ->orWhere('MNAME', 'like', "%{$search}%")
+                                ->orWhere('LNAME', 'like', "%{$search}%");
                         });
                     }),
                 Tables\Columns\TextColumn::make('NAME')
@@ -104,7 +110,33 @@ class ScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Existing "My Schedule" filter
+                ...(($user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN') ? [
+                    Filter::make('My Schedule')
+                        ->query(fn (Builder $query) => $query->where('employees_id', $user->employee?->id)),
+                ] : []),
+
+                // ---
+
+                // New Date Filters
+                Filter::make('this_day')
+                    ->label('Today')
+                    ->query(fn (Builder $query): Builder =>
+                        $query->whereDate('DATE', Carbon::today())
+                    ),
+
+                Filter::make('this_week')
+                    ->label('This Week')
+                    ->query(fn (Builder $query): Builder =>
+                        $query->whereBetween('DATE', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                    ),
+
+                Filter::make('this_month')
+                    ->label('This Month')
+                    ->query(fn (Builder $query): Builder =>
+                        $query->whereMonth('DATE', Carbon::now()->month)
+                              ->whereYear('DATE', Carbon::now()->year)
+                    ),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

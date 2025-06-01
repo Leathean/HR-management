@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->string('NAME');
                 $table->time('STARTTIME')->nullable();
                 $table->time('ENDTIME')->nullable();
-                $table->enum('SCHEDULE_TYPE', ['WORKDAY', 'ONLEAVE', 'ABSENT'])->default('WORKDAY');
+                $table->enum('SCHEDULE_TYPE', ['WORKDAY', 'ONLEAVE', 'RESTDAY', 'LEAVEPAY'])->default('WORKDAY');
                 $table->date('DATE');
                 $table->timestamps();
                                                                     });

@@ -6,27 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Payroll extends Model
 {
-    use HasFactory;
-    protected $table ='payrolls';
+    protected $table = 'payrolls';
+
     protected $fillable = [
         'employees_id',
-        'salaries_id',
-        'PAYDATE',
-        'STATUS',
-        'approval_id',
-        'approval_date',
-        'gross_pay',
+        'salary_id',
+        'start_date',
+        'end_date',
+        'gross_salary',
         'total_deductions',
-        'net_pay',
+        'net_salary',
     ];
 
-    protected $casts = [
-        'PAYDATE' => 'date',
-        'approval_date' => 'date',
-        'gross_pay' => 'decimal:2',
-        'total_deductions' => 'decimal:2',
-        'net_pay' => 'decimal:2',
-    ];
+    protected $guarded = ['id'];
 
     public function employee()
     {
@@ -35,11 +27,6 @@ class Payroll extends Model
 
     public function salary()
     {
-        return $this->belongsTo(Salary::class, 'salaries_id');
-    }
-
-    public function approvedBy()
-    {
-        return $this->belongsTo(Employee::class, 'approval_id');
+        return $this->belongsTo(Salary::class, 'salary_id');
     }
 }

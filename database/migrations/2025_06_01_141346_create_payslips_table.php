@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('salaries', function (Blueprint $table) {
+        Schema::create('payslips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employees_id')->constrained('employees')->onDelete('cascade') ->unique();
-            $table->decimal('BASICSALARY', 10, 2)->default(0);
-             $table->decimal('PERDAYRATE', 10, 2)->default(0);
-            $table->boolean('STATUS')->default(true);
+            $table->foreignId('payroll_id')->constrained('payrolls')->onDelete('cascade');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('approved_at')->nullable();
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
+
     }
 
     /**
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('salaries');
+        Schema::dropIfExists('payslips');
     }
 };

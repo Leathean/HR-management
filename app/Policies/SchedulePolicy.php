@@ -9,7 +9,7 @@ class SchedulePolicy
     public function viewAny(User $user): bool
     {
         // Ensure the user has access as either HR or Admin
-        return $user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN';
+        return true;
     }
 
     /**
@@ -20,4 +20,29 @@ class SchedulePolicy
         // Ensure the user has access as either HR or Admin
         return $user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN';
     }
+
+       /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+      return $user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN';
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, schedule $salary): bool
+    {
+    return $user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN';
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, schedule $salary): bool
+    {
+    return $user->ACCESS === 'HR' || $user->ACCESS === 'ADMIN';
+    }
+
 }

@@ -14,14 +14,12 @@ return new class extends Migration
         Schema::create('payrolls', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employees_id')->constrained('employees')->onDelete('cascade');
-            $table->foreignId('salaries_id')->nullable()->constrained('salaries')->onDelete('cascade');
-            $table->date('PAYDATE');
-            $table->enum('STATUS', ['PENDING', 'PROCESSED', 'DENIED'])->default('PENDING');
-            $table->foreignId('approval_id')->nullable()->constrained('employees')->onDelete('cascade'); // approver mostly the payroll manager
-            $table->date('approval_date')->nullable();
-            $table->decimal('gross_pay', 10, 2)->nullable();         // salary + benefits
-            $table->decimal('total_deductions', 10, 2)->nullable();  // deductions
-            $table->decimal('net_pay', 10, 2)->nullable();           // gross - deductions
+            $table->foreignId('salary_id')->constrained('salaries')->onDelete('cascade');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->decimal('gross_salary', 10, 2)->default(0);
+            $table->decimal('total_deductions', 10, 2)->default(0);
+            $table->decimal('net_salary', 10, 2)->default(0);
             $table->timestamps();
         });
     }
