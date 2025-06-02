@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('payslips', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payroll_id')->constrained('payrolls')->onDelete('cascade');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('approved_at')->nullable();
+            $table->foreignId('approver_id')->nullable()->constrained('employees')->onDelete('cascade');
+            $table->enum('approval_status', ['PENDING', 'ACCEPTED', 'DENIED'])->default('PENDING');
+            $table->date('approve_date')->nullable();
+            $table->json('summary')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
         });

@@ -20,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Illuminate\Support\HtmlString; // Make sure to import HtmlString if using custom HTML messages
 
 class EmployeebenefitResource extends Resource
 {
@@ -27,8 +28,9 @@ class EmployeebenefitResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-plus-circle';
         protected static ?int $navigationSort = 3;
-        protected static ?String $navigationGroup = 'Finances';
+    protected static ?string $navigationGroup = 'Payroll Management';
         protected static ?string $modelLabel = 'Employee Benefits';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -55,8 +57,6 @@ class EmployeebenefitResource extends Resource
 
                     return \App\Models\Benefit::whereNotIn('id', $assignedBenefitIds)->pluck('NAME', 'id');
                 })
-
-
                 ->searchable()
                 ->required(),
 
@@ -118,6 +118,44 @@ class EmployeebenefitResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                // --- New "Enable" Action ---
+                Tables\Actions\Action::make('enable_benefit')
+                    ->label('Enable')
+                    ->icon('heroicon-o-check-circle') // Green check icon
+                    ->color('success')
+                    ->visible(fn (Employeebenefit $record): bool => !$record->STATUS) // Only show if STATUS is false
+                    ->requiresConfirmation()
+                    ->modalHeading('Enable Benefit')
+                    ->modalDescription(new HtmlString('Are you sure you want to <strong>enable</strong> this employee benefit? It will become active and affect payroll calculations.'))
+                    ->modalSubmitActionLabel('Yes, enable it')
+                    ->action(function (Employeebenefit $record) {
+                        $record->STATUS = true;
+                        $record->save();
+                        \Filament\Notifications\Notification::make()
+                            ->title('Benefit Enabled')
+                            ->body('The employee benefit has been successfully enabled.')
+                            ->success()
+                            ->send();
+                    }),
+                // --- New "Disable" Action ---
+                Tables\Actions\Action::make('disable_benefit')
+                    ->label('Disable')
+                    ->icon('heroicon-o-x-circle') // Red cross icon
+                    ->color('danger')
+                    ->visible(fn (Employeebenefit $record): bool => $record->STATUS) // Only show if STATUS is true
+                    ->requiresConfirmation()
+                    ->modalHeading('Disable Benefit')
+                    ->modalDescription(new HtmlString('Are you sure you want to <strong>disable</strong> this employee benefit? It will no longer be active and will not affect payroll calculations.'))
+                    ->modalSubmitActionLabel('Yes, disable it')
+                    ->action(function (Employeebenefit $record) {
+                        $record->STATUS = false;
+                        $record->save();
+                        \Filament\Notifications\Notification::make()
+                            ->title('Benefit Disabled')
+                            ->body('The employee benefit has been successfully disabled.')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

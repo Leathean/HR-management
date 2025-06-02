@@ -19,7 +19,7 @@ class BenefitResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-gift';
         protected static ?int $navigationSort = 3;
-        protected static ?String $navigationGroup = 'Finances';
+    protected static ?string $navigationGroup = 'Payroll Management';
     public static function form(Form $form): Form
     {
         return $form

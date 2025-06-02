@@ -99,72 +99,73 @@ class SalaryResource extends Resource
         ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist // for view so it shows all related information for the employee
+        public static function infolist(Infolist $infolist): Infolist // for view so it shows all related information for the employee
 
-    {
-        return $infolist
-            ->schema([
-                InfolistSection::make('Employee Details')
-                    ->description('Information about the employee.')
-                    ->schema([
-                        TextEntry::make('employee.FNAME')
-                            ->label('Employee Name')
-                            ->formatStateUsing(fn ($record) => $record->employee
-                                ? "{$record->employee->FNAME} {$record->employee->MNAME} {$record->employee->LNAME}"
-                                : 'N/A'),
-                        TextEntry::make('employees_id')
-                            ->label('Employee ID'),
+        {
+            return $infolist
+                ->schema([
+                    InfolistSection::make('Employee Details')
+                        ->description('Information about the employee.')
+                        ->schema([
+                            TextEntry::make('employee.FNAME')
+                                ->label('Employee Name')
+                                ->formatStateUsing(fn ($record) => $record->employee
+                                    ? "{$record->employee->FNAME} {$record->employee->MNAME} {$record->employee->LNAME}"
+                                    : 'N/A'),
+                            TextEntry::make('employees_id')
+                                ->label('Employee ID'),
 
-                        TextEntry::make('employee.ejob.EJOB_NAME')
-                            ->label('Job')
-                            ->formatStateUsing(fn ($state, $record) => $record->employee
-                                ? "{$record->employee->ejob->EJOB_NAME} - {$record->employee->ejob->EJOB_DESCRIPTION}"
-                                : 'N/A'),
-                        TextEntry::make('employee.department')
-                            ->label('Department')
-                            ->formatStateUsing(fn ($state, $record) => $record->employee
-                                ? "{$record->employee->department->DP_NAME} - {$record->employee->department->DP_DESCRIPTION}"
-                                : 'N/A'),
-                        TextEntry::make('employee.PNUMBER')
-                            ->label('Phone Number')
-                    ])
-                    ->collapsible()
-                    ->collapsed(false),
+                            TextEntry::make('employee.ejob.EJOB_NAME')
+                                ->label('Job')
+                                ->formatStateUsing(fn ($state, $record) => $record->employee
+                                    ? "{$record->employee->ejob->EJOB_NAME} - {$record->employee->ejob->EJOB_DESCRIPTION}"
+                                    : 'N/A'),
+                            TextEntry::make('employee.department')
+                                ->label('Department')
+                                ->formatStateUsing(fn ($state, $record) => $record->employee
+                                    ? "{$record->employee->department->DP_NAME} - {$record->employee->department->DP_DESCRIPTION}"
+                                    : 'N/A'),
+                            TextEntry::make('employee.PNUMBER')
+                                ->label('Phone Number')
+                        ])
+                        ->collapsible()
+                        ->collapsed(false),
 
-                InfolistSection::make('Salary Details')
-                    ->description('Details about the employee salary.')
-                    ->schema([
-                        TextEntry::make('BASICSALARY')
-                            ->label('Basic Salary')
-                            ->formatStateUsing(fn ($state) => number_format($state, 2)),
+                    InfolistSection::make('Salary Details')
+                        ->description('Details about the employee salary.')
+                        ->schema([
+                            TextEntry::make('BASICSALARY')
+                                ->label('Basic Salary')
+                                ->formatStateUsing(fn ($state) => number_format($state, 2)),
 
-                        TextEntry::make('PERDAYRATE')
-                            ->label('Rate per Day')
-                            ->formatStateUsing(fn ($state) => number_format($state, 2)),
+                            TextEntry::make('PERDAYRATE')
+                                ->label('Rate per Day')
+                                ->formatStateUsing(fn ($state) => number_format($state, 2))
+                                ->money('php'),
 
 
-                        TextEntry::make('STATUS')
-                            ->label('Status')
-                            ->formatStateUsing(fn ($state) => $state ? 'Active' : 'Inactive'),
-                    ])
-                    ->collapsible()
-                    ->collapsed(false),
+                            TextEntry::make('STATUS')
+                                ->label('Status')
+                                ->formatStateUsing(fn ($state) => $state ? 'Active' : 'Inactive'),
+                        ])
+                        ->collapsible()
+                        ->collapsed(false),
 
-                InfolistSection::make('Timestamps')
-                    ->description('Record creation and update timestamps.')
-                    ->schema([
-                        TextEntry::make('created_at')
-                            ->label('Date Created')
-                            ->formatStateUsing(fn ($state) => optional($state)->format('Y-m-d')),
+                    InfolistSection::make('Timestamps')
+                        ->description('Record creation and update timestamps.')
+                        ->schema([
+                            TextEntry::make('created_at')
+                                ->label('Date Created')
+                                ->formatStateUsing(fn ($state) => optional($state)->format('Y-m-d')),
 
-                        TextEntry::make('updated_at')
-                            ->label('Date Updated')
-                            ->formatStateUsing(fn ($state) => optional($state)->format('Y-m-d')),
-                    ])
-                    ->collapsible()
-                    ->collapsed(false),
-            ]);
-    }
+                            TextEntry::make('updated_at')
+                                ->label('Date Updated')
+                                ->formatStateUsing(fn ($state) => optional($state)->format('Y-m-d')),
+                        ])
+                        ->collapsible()
+                        ->collapsed(false),
+                ]);
+        }
 
     public static function table(Table $table): Table
     {

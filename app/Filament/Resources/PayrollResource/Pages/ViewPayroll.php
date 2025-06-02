@@ -14,6 +14,15 @@ class ViewPayroll extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+                        Actions\EditAction::make(),
+            Actions\Action::make('exit')
+            ->label('Exit')
+            ->url($this->getRedirectUrl())
+            ->color('danger'),
         ];
+    }
+        protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

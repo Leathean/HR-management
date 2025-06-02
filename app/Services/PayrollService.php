@@ -9,6 +9,7 @@ use App\Models\Schedule;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\EmployeeBenefit;
+use App\Models\Employee; // Added for employee name
 
 class PayrollService
 {
@@ -43,6 +44,7 @@ class PayrollService
                 'early_out_count' => 0,
                 'absent_dates' => [],
                 'onleave_dates' => [],
+                'deductions' => [],  // Added empty deductions here
             ];
         }
 
@@ -60,6 +62,8 @@ class PayrollService
 
         // Fetch deduction rules keyed by ATTENDANCE_TYPE
         $deductionRules = DeductionAttendanceRule::all()->keyBy('ATTENDANCE_TYPE');
+
+        $deductionDetails = [];
 
         foreach ($period as $date) {
             $dateStr = $date->format('Y-m-d');
@@ -88,17 +92,27 @@ class PayrollService
 
                     // Use deduction rule for ABSENT if available
                     if (isset($deductionRules['ABSENT'])) {
-                        $totalDeduction += $this->calculateDeductionAmount($deductionRules['ABSENT'], 1, $grossSalary);
+                        $amount = $this->calculateDeductionAmount($deductionRules['ABSENT'], 1, $grossSalary);
+                        $totalDeduction += $amount;
+                        $this->addDeductionDetail($deductionDetails, $deductionRules['ABSENT'], 1, $amount);
                     } else {
                         // fallback: deduct per day rate
                         $totalDeduction += $perDayRate;
+                        $this->addDeductionDetail($deductionDetails, (object)[
+                            'ATTENDANCE_TYPE' => 'ABSENT',
+                            'DEDUCTION_ATTENDANCE_AMOUNT' => $perDayRate,
+                            'DEDUCTION_METHOD' => 'FIXED',
+                            'NAME' => 'Absent'
+                        ], 1, $perDayRate);
                     }
                 } else {
                     // Check late
                     if ($attendance->time_in_status === 'LATE') {
                         $lateCount++;
                         if (isset($deductionRules['LATE'])) {
-                            $totalDeduction += $this->calculateDeductionAmount($deductionRules['LATE'], 1, $grossSalary);
+                            $amount = $this->calculateDeductionAmount($deductionRules['LATE'], 1, $grossSalary);
+                            $totalDeduction += $amount;
+                            $this->addDeductionDetail($deductionDetails, $deductionRules['LATE'], 1, $amount);
                         }
                     }
 
@@ -106,7 +120,9 @@ class PayrollService
                     if ($attendance->time_out_status === 'EARLY OUT') {
                         $earlyOutCount++;
                         if (isset($deductionRules['EARLY OUT'])) {
-                            $totalDeduction += $this->calculateDeductionAmount($deductionRules['EARLY OUT'], 1, $grossSalary);
+                            $amount = $this->calculateDeductionAmount($deductionRules['EARLY OUT'], 1, $grossSalary);
+                            $totalDeduction += $amount;
+                            $this->addDeductionDetail($deductionDetails, $deductionRules['EARLY OUT'], 1, $amount);
                         }
                     }
                 }
@@ -115,21 +131,37 @@ class PayrollService
                 $absentCount++;
                 // Deduct per day rate on leave
                 $totalDeduction += $perDayRate;
+                $this->addDeductionDetail($deductionDetails, (object)[
+                    'ATTENDANCE_TYPE' => 'ONLEAVE',
+                    'DEDUCTION_ATTENDANCE_AMOUNT' => $perDayRate,
+                    'DEDUCTION_METHOD' => 'FIXED',
+                    'NAME' => 'On Leave'
+                ], 1, $perDayRate);
             }
             // RESTDAY and LEAVEPAY have no deduction
         }
 
         // Fetch active employee benefits total
-        $activeBenefitsTotal = EmployeeBenefit::where('employees_id', $employeeId)
+        $activeBenefits = EmployeeBenefit::where('employees_id', $employeeId)
             ->where('STATUS', true)
-            ->sum('AMOUNT');
+            ->get();
 
+        $activeBenefitsTotal = 0;
+        foreach ($activeBenefits as $benefit) {
+            $activeBenefitsTotal += $benefit->AMOUNT;
+            $this->addDeductionDetail($deductionDetails, (object)[
+                'ATTENDANCE_TYPE' => 'BENEFIT',
+                'DEDUCTION_ATTENDANCE_AMOUNT' => $benefit->AMOUNT,
+                'DEDUCTION_METHOD' => 'FIXED',
+                'NAME' => $benefit->NAME ?? 'Benefit'
+            ], 1, $benefit->AMOUNT);
+        }
         $activeBenefitsTotal = round($activeBenefitsTotal, 2);
 
         $totalDeduction = round($totalDeduction, 2);
 
         // Net salary after subtracting total deductions and active benefits
-        $netSalary = max(0, round($grossSalary - $totalDeduction - $activeBenefitsTotal, 2));
+        $netSalary = max(0, round($grossSalary - $totalDeduction - $activeBenefitsTotal, 2))/2;
 
         return [
             'gross_salary' => $grossSalary,
@@ -140,6 +172,7 @@ class PayrollService
             'early_out_count' => $earlyOutCount,
             'absent_dates' => $absentDates,
             'onleave_dates' => $onleaveDates,
+            'deductions' => $deductionDetails, // detailed deductions added here
         ];
     }
 
@@ -166,5 +199,54 @@ class PayrollService
         }
 
         return 0;
+    }
+
+    /**
+     * Helper method to add or accumulate deduction detail
+     */
+    protected function addDeductionDetail(array &$details, $rule, int $count, float $amount)
+    {
+        $key = $rule->ATTENDANCE_TYPE ?? $rule->NAME ?? 'UNKNOWN';
+
+        if (!isset($details[$key])) {
+            $details[$key] = [
+                'name' => $rule->NAME ?? ucfirst(strtolower($key)),
+                'count' => 0,
+                'amount' => 0,
+            ];
+        }
+
+        $details[$key]['count'] += $count;
+        $details[$key]['amount'] += $amount;
+    }
+
+    /**
+     * Generate the summary array for payslip from payroll calculation.
+     *
+     * @param int $employeeId
+     * @param int $salaryId
+     * @param string|Carbon $startDate
+     * @param string|Carbon $endDate
+     * @return array
+     */
+    public function generatePayslipSummary(int $employeeId, int $salaryId, string $startDate, string $endDate): array
+    {
+        $payrollData = $this->calculatePayroll($employeeId, $salaryId, $startDate, $endDate);
+
+        $employee = Employee::find($employeeId);
+
+        return [
+            'employee_name' => $employee ? $employee->name : 'Unknown Employee',
+            'late_count' => $payrollData['late_count'],
+            'absent_count' => $payrollData['absent_count'],
+            'onleave_count' => count($payrollData['onleave_dates']),
+            'early_out_count' => $payrollData['early_out_count'],
+            'absent_dates' => $payrollData['absent_dates'],
+            'onleave_dates' => $payrollData['onleave_dates'],
+            'total_deductions' => $payrollData['total_deductions'],
+            'gross_salary' => $payrollData['gross_salary'],
+            'net_salary' => $payrollData['net_salary'],
+            'deductions' => array_values($payrollData['deductions']), // Convert to indexed array for JSON/array usage
+        ];
     }
 }
