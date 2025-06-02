@@ -28,7 +28,7 @@ class SalaryResource extends Resource
 {
     protected static ?string $model = Salary::class;
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
-
+protected static ?string $navigationGroup = 'Payroll Management';
     public static function form(Form $form): Form
     {
         return $form->schema([

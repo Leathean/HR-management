@@ -132,7 +132,7 @@
         </nav>
     </header>
 
-    <h1>Available Job Postings</h1>
+    <h1>Available Job Offers</h1>
 
     <div class="job-grid">
         @foreach ($jobPostings as $job)
